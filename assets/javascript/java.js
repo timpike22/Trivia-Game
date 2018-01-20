@@ -36,28 +36,15 @@ var questions = [{
 var currentQuestion = 0
 var correctAnswers = 0
 var quizOver = false;
+var range;
 
-//var messages = ["Great job!","Ehh, you could do better","Are you a cat person?"];
-//var gifs = ["assets/images/gooddog.gif","assets/images/crazydog.gif","assets/images/baddog.gif"];
 
-//var range;
-
-//if (correctAnswers < 3){
-//	range = 2;
-//}
-//if (correctAnswers > 5){
-	//range = 1;
-//}
-//if (correctAnswers > 7){
-	//range = 0;
-//}
-// I tried to make the different gifs and messages pop up when the round was over, but I couldn't figure it out.
 
 
 $(document).ready(function(){
     
     myTimer(60);
-
+	//displayGifs();
 	displayCurrentQuestion();
 	$(this).find(".quizMessage").hide();
 
@@ -88,9 +75,7 @@ $(document).ready(function(){
 				} else { 
 					displayScore();
 
-
-
-					$(document).find(" .nextButton").text("Another round??");
+					$(document).find(".nextButton").text("Another round??");
 					clearInterval(timer);
 					quizOver = true;
 					
@@ -105,6 +90,7 @@ $(document).ready(function(){
 				displayCurrentQuestion();
 				hideScore();
 				myTimer(60);
+				displayGifs();
 
 			}
 
@@ -112,7 +98,22 @@ $(document).ready(function(){
 });
 
 
+function displayGifs(){
+	correctAnswers = 0;
+	var messages = ["Great job!", "Ehh, you could do better", "Are you a cat person?"];
+	var gifs = ["assets/images/gooddog.gif", "assets/images/crazydog.gif", "assets/images/baddog.gif"];
 
+
+	if (correctAnswers < 3) {
+		console.log(messages[2]);
+	}
+	if (correctAnswers > 5) {
+		console.log(messages[1])
+	}
+	if (correctAnswers > 7) {
+		console.log(messages[0])
+	}
+}
 
 function displayCurrentQuestion(){
 
@@ -163,7 +164,7 @@ function myTimer(sec) {
         }   
     }, 1000);
 }
-
+*/
 
 
 
