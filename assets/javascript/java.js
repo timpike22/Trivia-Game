@@ -1,169 +1,216 @@
-//make a start button
-//make a timer set at 120 seconds
-//make a function for each question
-//allow each of the questions ansers to be counted correct or incorrect (hidden)
-//make sure each question can only have one button pressed
-//make a done button that stops the game / also if the time runs out, the game ends
-//alert the final score / answers correct and answers incorrect
+$(document).ready(function() {
+$('#replay').hide();
+var correct = 0;
+var incorrect = 0;
+var unanswered = 0;
+var time = 15;
+var intervalId;
+var timeoutId;
+var currentQuestion = 0;
 
-var questions = [{
-	question: "What is the name of the dog in The Sandlot?",
-	choices: ["Max","Lucky","Hercules","Charlie"],
-	correctAnswer: 2},
-	{question: "What is the name of the good dog in Up?",
-	choices: ["Bailey","Dug","Spot","Doug"],
-	correctAnswer: 1},
-	{question: "What is the name of the dog in Garfield?",
-	choices: ["Rex","Jeffrey","Garfield","Odie"],
-	correctAnswer: 3},
-	{question: "What is the name of the dog in The Little Rascals?",
-	choices: ["Barksworth","Benny","Petey","Conan"],
-	correctAnswer: 2},
-	{question: "What is the name of the dog in Toy Story?",
-	choices: ["Slink","Link","Rex","Buzz"],
-	correctAnswer: 0},
-	{question: "What is the name of the dog in A Dogs Purpose?",
-	choices: ["Chance","Ally","Molly","Bailey"],
-	correctAnswer: 3},
-	{question: "What is the name of the dog in Family Guy?",
-	choices: ["Chris","Brian","Adam","Chuck"],
-	correctAnswer: 1},
-	{question: "What is the name of the dog in Air Bud?",
-	choices: ["Muddy","Lucky","Buddy","Rocky"],
-	correctAnswer: 2
-}];
+    var questions = {
 
-var currentQuestion = 0
-var correctAnswers = 0
-var quizOver = false;
+    1: {
+        question: "What is the name of the dog in The Sandlot?",
+        answer1: "Max", 
+        correctAnswer: "Hercules", 
+        answer2: "Lucky",
+        answer3:"Charlie"
+    },
+    2: {
+        question: "What is the name of the good dog in Up?",
+        correctAnswer: "Dug",
+        answer1: "Bailey", 
+        answer2: "Spot",
+        answer3: "Dog"
 
-//var messages = ["Great job!","Ehh, you could do better","Are you a cat person?"];
-//var gifs = ["assets/images/gooddog.gif","assets/images/crazydog.gif","assets/images/baddog.gif"];
+    },
+    3: {
+        question: "What is the name of the dog in Garfield?",
+        answer1: "Rex",
+        answer2: "Jeffrey",
+        correctAnswer: "Odie",
+        answer3: "Garfield"    
+  
+    },
+    4: {
+        question: "What is the name of the dog in The Little Rascals?",
+        answer1: "Barksworth",
+        correctAnswer: "Petey",
+        answer2: "Benny",
+        answer3: "Conan"
+    },
+    5: {
+        question: "What is the name of the dog in Toy Story?",
+        correctAnswer: "Slink",
+        answer1: "Link",
+        answer2: "Rex",
+        answer3: "Buzz"
+    },
+    6: {
+        question: "What is the name of the dog in A Dogs Purpose?",
+        answer1: "Chance",
+        answer2: "Ally",
+        answer3: "Molly",
+        correctAnswer: "Bailey"
+    },
+    7: {   
+        question: "What is the name of the dog in Family Guy?",
+        answer1: "Chris",
+        correctAnswer: "Brian",
+        answer2: "Adam",
+        answer3: "Chuck"
+    },
+    8: {
+        question: "What is the name of the dog in Air Bud?",
+        answer1: "Muddy",
+        answer2: "Lucky",
+        correctAnswer: "Buddy",
+        answer3: "Rocky"
+    }
+};
 
-//var range;
+function insertImage () {
+    $('.answers').append('<img src"' + questions[currentQuestion].image + '/>');
+};
 
-//if (correctAnswers < 3){
-//	range = 2;
-//}
-//if (correctAnswers > 5){
-	//range = 1;
-//}
-//if (correctAnswers > 7){
-	//range = 0;
-//}
-// I tried to make the different gifs and messages pop up when the round was over, but I couldn't figure it out.
+var numberOfQuestions = Object.keys(questions).length;
+ 
+function lowTime() {
+    if(time < 5){
+        $('#timeRem').css({'color': 'red'});
+    } else {
+        $('#timeRem').css({ 'color': 'white'});
+    }
+}
+
+function showTime() {
+    $('#timeRem').html("Time Remaining: " + time);
+}
+
+function hideTime() {
+    $('#timeRem').html('');
+}
+
+function gameTimer() {
+    clearStatus();
+    time = 15;
+    lowTime();
+    showTime();
+    intervalId = setInterval(decrement, 1000);
+    $('#start').hide();
+};
+
+function fiveSec() {
+    timeoutId = setTimeout(run, 3000);
+}
+
+function decrement() {
+    if (time === 0 && currentQuestion < numberOfQuestions) {
+        answerScreen();
+        displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, "Out of Time");
+        unanswered++;
+    } else if (time > 0) {
+        showTime();
+        time--;
+        lowTime();
+    } else {
+        unanswered++
+        displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, "Out of Time");
+        finalAnswer();
+    }
+};
 
 
-$(document).ready(function(){
-    
-    myTimer(60);
+function insertQuestion(question) {
+    for (var k in question) {
+        answer = $("<div>");
+        answer.addClass(k);
+        answer.html(question[k]);
+        $('.answers').append(answer)
+    }
+};
 
-	displayCurrentQuestion();
-	$(this).find(".quizMessage").hide();
+function displayQuestion() {
+    currentQuestion++;
+    insertQuestion(questions[currentQuestion])
+};
 
-	$(this).find(".nextButton").on("click", function(){
-		if (!quizOver) {
-			
-			value = $("input[type='radio']:checked").val();
-		
-			if (value == undefined) {
-				$(document).find(".quizMessage").text("Please name the dog!");
+function displayStatus(correctAnswer, status) {
+    $('#status').html(status);
+    $('#correctAnswer').html(correctAnswer);
+};
 
-				$(document).find(".quizMessage").show();
-			}
-			else {
-				$(document).find(".quizMessage").hide();
-			
+function answerScreen() {
+    clearInterval(intervalId);
+    hideTime();
+    fiveSec();
+};
 
-			if (value == questions[currentQuestion].correctAnswer) {
+function finalAnswer() {
+    clearInterval(intervalId);
+    hideTime();
+    timeoutId = setTimeout(finalScreen(), 5000);
+};
 
-				correctAnswers++;
+function finalScreen() {
+    clearInterval(intervalId);
+    hideTime();
+    endReset();
+};
 
-				}
+function endReset() {
+        $('.answers').html('');
+        $('#status').html('Game Over!');
+        $('#stats').html("Correct: " + correct + ", Incorrect: " + incorrect + ", Unanswered: " + unanswered);
+        $('#replay').show();
+        correct = 0;
+        incorrect = 0;
+        unanswered = 0;
+        currentQuestion = 0;
+    };
+function clearStatus() {
+        $('#status').html('');
+        $('#correctAnswer').html('');
+        $('#stats').html('');
+        $('#replay').hide();
+    };
+  
+    function run() {
+        clearStatus();
+        gameTimer();
+        displayQuestion();
+        $('.correctAnswer, .answer1, .answer2, .answer3').on('click', userChoice);
+    };
+    //
+    function userChoice() {
+        if ($(this).hasClass('correctAnswer') && (currentQuestion < numberOfQuestions)) { //if correct answer and not last question
+            correct++;
+            answerScreen();
+            displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, 'Correct!');
+        }
+        else if (currentQuestion < numberOfQuestions) { // if incorrect and not last question
+            incorrect++;
+            answerScreen();
+            displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, 'Incorrect...');
+        }
+        else if ($(this).hasClass('correctAnswer') && (currentQuestion === numberOfQuestions)) { //if correct and last question
+            correct++;
+            finalAnswer();
+            displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, 'Correct!');
+        }
+        else if (currentQuestion === numberOfQuestions) { //if incorrect and last question
+            incorrect++;
+            finalAnswer();
+           // displayStatus("Correct Answer: " + questions[currentQuestion].correctAnswer, 'Incorrect');
+        }
+    };
 
-				currentQuestion++;
-
-				if (currentQuestion < questions.length)  {
-					displayCurrentQuestion();
-				} else { 
-					displayScore();
+    $('#start').on("click", run);
+    $('#replay').on('click', run);
 
 
 
-					$(document).find(" .nextButton").text("Another round??");
-					clearInterval(timer);
-					quizOver = true;
-					
-				
-					}
-				} 
 
-			} else { 
-				quizOver = false;
-				$(document).find(" .nextButton").text("Next Question");
-				resetQuiz();
-				displayCurrentQuestion();
-				hideScore();
-				myTimer(60);
 
-			}
-
-	});
 });
-
-
-
-
-function displayCurrentQuestion(){
-
-	var question = questions[currentQuestion].question;
-	var questionClass = $(document).find(".quizContainer > .question");
-	var choiceList = $(document).find(".quizContainer > .choiceList");
-	var numChoices = questions[currentQuestion].choices.length;
-
-	$(questionClass).text(question);
-
-	$(choiceList).find("li").remove();
-
-	var choice;
-	for (i = 0; i < numChoices; i++) {
-		choice = questions[currentQuestion].choices[i];
-		$('<li><input type="radio" value=' + i + ' name="dynradio" />'
-			+ choice + '</li>').appendTo(choiceList);
-	}
-}
-
-function resetQuiz(){
-	currentQuestion = 0;
-	correctAnswers = 0;
-	hideScore();
-
-
-}
-
-function displayScore(){
-	$(document).find(".quizContainer > .result").text("Score: " + correctAnswers + " out of " + questions.length);
-	$(document).find(".quizContainer > .result").show();
-}
-
-function hideScore() {
-	$(document).find(".result").hide();
-}
-
-var timer;
-function myTimer(sec) {
-    if (timer) clearInterval(timer);
-    timer = setInterval(function() { 
-        $('#timer').text(sec--);
-        if (sec < 0) {
-            clearInterval(timer);
-            displayScore();
-            $(document).find(" .nextButton").text("Another Round?");
-            quizOver = true 
-        }   
-    }, 1000);
-}
-
-
-
-
